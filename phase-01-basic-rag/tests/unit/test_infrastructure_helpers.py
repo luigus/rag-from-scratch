@@ -61,3 +61,29 @@ def test_gives_up_after_the_last_attempt():
 
     with pytest.raises(FakeAPIError):
         asyncio.run(retry.with_retry(always_busy, attempts=3))
+
+
+def test_retries_network_errors():
+    calls = {"n": 0}
+
+    async def reset_once() -> str:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise ConnectionResetError(54, "Connection reset by peer")
+        return "ok"
+
+    assert asyncio.run(retry.with_retry(reset_once)) == "ok"
+    assert calls["n"] == 2
+
+
+def test_a_hanging_call_times_out_and_is_retried():
+    calls = {"n": 0}
+
+    async def hangs_first_time() -> str:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            await asyncio.Event().wait()  # never finishes
+        return "ok"
+
+    assert asyncio.run(retry.with_retry(hangs_first_time, timeout=0.05)) == "ok"
+    assert calls["n"] == 2

@@ -66,3 +66,23 @@ def test_report_aggregates_and_renders():
     md = to_markdown(report)
     assert "Hit@2" in md
     assert "missed it" in md
+
+
+class BrokenChat:
+    async def complete(self, system: str, user: str) -> str:
+        raise RuntimeError("boom")
+
+
+def test_a_failing_case_does_not_stop_the_run():
+    rag = RagService(FakeEmbedder(), InMemoryStore(), BrokenChat(), chunk_size=80, chunk_overlap=0)
+    asyncio.run(rag.ingest("velaro.txt", DOC))
+    results = asyncio.run(run_evaluation(rag, None, CASES, k=2))
+
+    # every case that reaches the LLM fails, but all of them are reported
+    failed = [r for r in results if r.error]
+    assert failed and all("boom" in r.error for r in failed)
+    assert len(results) == 3
+
+    report = build_report(results, config={"top_k": 2})
+    assert report.overall.failed == len(failed)
+    assert "Failed cases" in to_markdown(report)

@@ -21,6 +21,7 @@ class CaseResult(BaseModel):
     retrieval: RetrievalScores | None  # None for unanswerable questions
     verdict: JudgeVerdict | None  # None when the judge is disabled
     latency_ms: float  # retrieval + generation, without the judge
+    error: str | None = None  # set when the case failed even after the retries
 
 
 async def evaluate_case(
@@ -50,6 +51,20 @@ async def evaluate_case(
     )
 
 
+def failed_case(case: EvalCase, error: Exception) -> CaseResult:
+    return CaseResult(
+        id=case.id,
+        category=case.category,
+        question=case.question,
+        answer="",
+        retrieved_sources=[],
+        retrieval=None,
+        verdict=None,
+        latency_ms=0.0,
+        error=f"{type(error).__name__}: {error}",
+    )
+
+
 async def run_evaluation(
     rag: RagService,
     judge: LLMJudge | None,
@@ -69,7 +84,11 @@ async def run_evaluation(
     async def limited(case: EvalCase) -> CaseResult:
         nonlocal done
         async with semaphore:
-            result = await evaluate_case(rag, judge, case, k)
+            try:
+                result = await evaluate_case(rag, judge, case, k)
+            except Exception as e:
+                # one failed question must not throw away the results of all the others
+                result = failed_case(case, e)
         done += 1
         if on_progress:
             on_progress(result, done, len(cases))

@@ -23,6 +23,9 @@ from rag_from_scratch.services.prompts import PROMPT_VERSION
 
 
 def print_progress(result: CaseResult, done: int, total: int) -> None:
+    if result.error:
+        print(f"[{done:>2}/{total}] {result.id} FAILED  {result.error[:100]}")
+        return
     found = "–" if result.retrieval is None else ("found" if result.retrieval.hit else "missed")
     verdict = "" if result.verdict is None else ("correct" if result.verdict.correct else "WRONG")
     print(f"[{done:>2}/{total}] {result.id} {result.latency_ms / 1000:5.1f}s  {found:6} {verdict}")

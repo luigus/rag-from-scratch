@@ -18,6 +18,7 @@ class Summary(BaseModel):
     faithfulness: float | None = None
     correctness: float | None = None
     judge_errors: int = 0
+    failed: int = 0  # cases that crashed; they are left out of every metric
 
 
 class EvalReport(BaseModel):
@@ -34,11 +35,13 @@ def _avg(values: Sequence[float]) -> float | None:
     return round(mean(values), 3) if values else None
 
 
-def summarize(results: Sequence[CaseResult]) -> Summary:
+def summarize(all_results: Sequence[CaseResult]) -> Summary:
+    results = [r for r in all_results if r.error is None]
     scored = [r.retrieval for r in results if r.retrieval]
     verdicts = [r.verdict for r in results if r.verdict]
     return Summary(
-        cases=len(results),
+        cases=len(all_results),
+        failed=len(all_results) - len(results),
         hit_at_k=_avg([s.hit for s in scored]),
         recall_at_k=_avg([s.recall for s in scored]),
         precision_at_k=_avg([s.precision for s in scored]),
@@ -51,7 +54,7 @@ def summarize(results: Sequence[CaseResult]) -> Summary:
 
 def build_report(results: list[CaseResult], config: dict[str, str | int]) -> EvalReport:
     categories = sorted({r.category for r in results})
-    latencies = [r.latency_ms for r in results]
+    latencies = [r.latency_ms for r in results if r.error is None] or [0.0]
     p50, p95 = (
         (quantiles(latencies, n=100)[49], quantiles(latencies, n=100)[94])
         if len(latencies) > 1
@@ -92,6 +95,15 @@ def to_markdown(report: EvalReport) -> str:
         if r.verdict and not r.verdict.correct
     ]
     config = ", ".join(f"{key}={value}" for key, value in report.config.items())
+    crashed = [f"- `{r.id}` {r.question} → {r.error}" for r in report.results if r.error]
+    warning = (
+        [
+            f"⚠️ {len(crashed)} case(s) failed and are not in the metrics. Run again to include them.",
+            "",
+        ]
+        if crashed
+        else []
+    )
 
     return "\n".join(
         [
@@ -99,6 +111,7 @@ def to_markdown(report: EvalReport) -> str:
             "",
             f"Config: {config}",
             "",
+            *warning,
             header,
             *rows,
             "",
@@ -109,5 +122,6 @@ def to_markdown(report: EvalReport) -> str:
             "",
             *(failures or ["None 🎉"]),
             "",
+            *(["## Failed cases", "", *crashed, ""] if crashed else []),
         ]
     )
