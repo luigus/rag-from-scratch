@@ -73,6 +73,9 @@ The judge is an LLM too, so it can be wrong. Its reason is saved for every case,
 ```bash
 cp .env.example .env          # add your GEMINI_API_KEY (or set LLM_PROVIDER=openai)
 docker compose up -d
+python3 -m venv .venv               # Python 3.11 or newer
+source .venv/bin/activate           # Windows: .venv\Scripts\activate
+pip install --upgrade pip
 pip install -e ".[dev]"
 
 python -m rag_from_scratch.evaluation              # full evaluation
