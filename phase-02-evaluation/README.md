@@ -70,24 +70,23 @@ The judge is an LLM too, so it can be wrong. Its reason is saved for every case,
 
 ## Run it
 
+Requires [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`). It installs the right Python version and the dependencies, with versions locked in `uv.lock`.
+
 ```bash
 cp .env.example .env          # add your GEMINI_API_KEY (or set LLM_PROVIDER=openai)
 docker compose up -d
-python3 -m venv .venv               # Python 3.11 or newer
-source .venv/bin/activate           # Windows: .venv\Scripts\activate
-pip install --upgrade pip
-pip install -e ".[dev]"
+uv sync                       # creates .venv with Python 3.12 and installs everything
 
-python -m rag_from_scratch.evaluation              # full evaluation
-python -m rag_from_scratch.evaluation --no-judge   # retrieval only, almost free
-python -m rag_from_scratch.evaluation --k 5        # try another top-k
+uv run python -m rag_from_scratch.evaluation              # full evaluation
+uv run python -m rag_from_scratch.evaluation --no-judge   # retrieval only, almost free
+uv run python -m rag_from_scratch.evaluation --k 5        # try another top-k
 ```
 
 The CLI runs 2 questions at a time by default and retries rate-limit errors (429) with exponential backoff, so it also works on free API tiers. On a paid tier, `--concurrency 8` is much faster.
 
 Each run uses a separate `rag-eval` index, recreated from scratch, and saves `eval-results/<timestamp>.json` (every case) and `.md` (summary table). The configuration (models, chunking, top-k, prompt versions) is stored in the report, so any result can be reproduced.
 
-The API works as in phase 1: `uvicorn rag_from_scratch.main:app --reload --app-dir src`.
+The API works as in phase 1: `uv run uvicorn rag_from_scratch.main:app --reload --app-dir src`. Tests: `uv run pytest`.
 
 ## Project structure (new parts)
 

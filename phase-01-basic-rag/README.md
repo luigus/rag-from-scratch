@@ -74,14 +74,13 @@ The dependencies point inwards: `api` → `services` → `domain`. The `infrastr
 
 ## Run it
 
+Requires [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`). It installs the right Python version and the dependencies, with versions locked in `uv.lock`.
+
 ```bash
 cp .env.example .env          # add your GEMINI_API_KEY (or set LLM_PROVIDER=openai)
 docker compose up -d          # OpenSearch on localhost:9200
-python3 -m venv .venv               # Python 3.11 or newer
-source .venv/bin/activate           # Windows: .venv\Scripts\activate
-pip install --upgrade pip
-pip install -e ".[dev]"
-uvicorn rag_from_scratch.main:app --reload --app-dir src
+uv sync                       # creates .venv with Python 3.12 and installs everything
+uv run uvicorn rag_from_scratch.main:app --reload --app-dir src
 ```
 
 ```bash
@@ -90,7 +89,7 @@ curl -X POST http://localhost:8000/ask -H "Content-Type: application/json" \
      -d '{"question": "What is the maintenance interval for the bogies?"}'
 ```
 
-Tests: `pytest`
+Tests: `uv run pytest`
 
 ## Known limitations (addressed in the next phases)
 
