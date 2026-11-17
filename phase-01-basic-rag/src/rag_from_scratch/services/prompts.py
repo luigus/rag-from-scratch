@@ -1,6 +1,6 @@
-"""Prompts versionados como código: mudar aqui = mudança revista em PR."""
+"""Prompts versioned as code: changing a prompt is a reviewed change in a PR."""
 
-from rag_from_scratch.models import RetrievedChunk
+from rag_from_scratch.domain.models import RetrievedChunk
 
 PROMPT_VERSION = "v1"
 

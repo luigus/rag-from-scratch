@@ -1,9 +1,9 @@
-"""Divisão de texto em chunks com sobreposição (overlap).
+"""Split text into chunks with overlap.
 
-Estratégia: juntar parágrafos até chegar perto de `chunk_size`. Um parágrafo
-maior do que `chunk_size` é cortado em frases e, em último caso, por caracteres.
-Cada novo chunk começa com o final do anterior (`overlap`), para que uma ideia
-cortada a meio não se perca na pesquisa.
+Strategy: join paragraphs until the chunk gets close to `chunk_size`. A
+paragraph larger than `chunk_size` is split into sentences and, as a last
+resort, by characters. Each new chunk starts with the end of the previous one
+(`overlap`), so an idea cut in the middle is not lost during search.
 """
 
 import re
@@ -12,7 +12,7 @@ _SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
 
 
 def _split_long(text: str, size: int) -> list[str]:
-    """Corta um bloco grande em frases; se ainda for grande, por caracteres."""
+    """Split a large block into sentences; if still too large, by characters."""
     pieces: list[str] = []
     for sentence in _SENTENCE_END.split(text):
         if len(sentence) <= size:
@@ -24,9 +24,9 @@ def _split_long(text: str, size: int) -> list[str]:
 
 def split_text(text: str, chunk_size: int = 1000, overlap: int = 150) -> list[str]:
     if chunk_size <= 0:
-        raise ValueError("chunk_size tem de ser > 0")
+        raise ValueError("chunk_size must be > 0")
     if not 0 <= overlap < chunk_size:
-        raise ValueError("overlap tem de estar entre 0 e chunk_size - 1")
+        raise ValueError("overlap must be between 0 and chunk_size - 1")
 
     paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
     units: list[str] = []
@@ -42,7 +42,7 @@ def split_text(text: str, chunk_size: int = 1000, overlap: int = 150) -> list[st
             continue
         chunks.append(current)
         tail = current[-overlap:] if overlap else ""
-        # o overlap nunca pode fazer o chunk passar do tamanho máximo
+        # the overlap must never push a chunk over the maximum size
         current = f"{tail} {unit}".strip() if len(tail) + 1 + len(unit) <= chunk_size else unit
     if current:
         chunks.append(current)

@@ -1,7 +1,7 @@
 [project]
 name = "rag-from-scratch"
 version = "0.1.0"
-description = "RAG de estudo, evoluído por etapas (avaliação, hybrid retrieval, GraphRAG, MCP)"
+description = "A RAG system built from scratch, one phase at a time (evaluation, hybrid retrieval, GraphRAG, MCP)"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
@@ -25,5 +25,5 @@ build-backend = "hatchling.build"
 packages = ["src/rag_from_scratch"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 testpaths = ["tests"]

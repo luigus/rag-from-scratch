@@ -1,14 +1,13 @@
-"""Interfaces (Protocols) das dependências externas.
+"""Interfaces (Protocols) for the external dependencies.
 
-O RagService depende destas interfaces e não da OpenAI ou do OpenSearch
-diretamente. Assim:
-- os testes usam implementações falsas, rápidas e determinísticas;
-- trocar de fornecedor (Azure OpenAI, Bedrock, Ollama) é só uma nova classe.
+RagService depends on these interfaces, not on OpenAI or OpenSearch directly:
+- tests use fake implementations that are fast and deterministic;
+- switching providers (Azure OpenAI, Bedrock, Ollama) only needs a new class.
 """
 
 from typing import Protocol
 
-from rag_from_scratch.models import Chunk, RetrievedChunk
+from rag_from_scratch.domain.models import Chunk, RetrievedChunk
 
 
 class Embedder(Protocol):

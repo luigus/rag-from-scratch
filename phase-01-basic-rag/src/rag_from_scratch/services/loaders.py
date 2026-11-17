@@ -1,4 +1,4 @@
-"""Extração de texto dos ficheiros enviados (PDF, TXT, MD)."""
+"""Text extraction from uploaded files (PDF, TXT, MD)."""
 
 import io
 from pathlib import Path
@@ -13,13 +13,13 @@ class UnsupportedFileError(ValueError):
 def extract_text(filename: str, data: bytes) -> str:
     suffix = Path(filename).suffix.lower()
     if suffix not in SUPPORTED:
-        raise UnsupportedFileError(f"Tipo não suportado: {suffix or '(sem extensão)'}")
+        raise UnsupportedFileError(f"Unsupported file type: {suffix or '(no extension)'}")
 
     if suffix == ".pdf":
         from pypdf import PdfReader
 
         reader = PdfReader(io.BytesIO(data))
-        # um parágrafo vazio entre páginas ajuda o chunking a respeitar a estrutura
+        # an empty line between pages helps the chunker respect the structure
         return "\n\n".join(page.extract_text() or "" for page in reader.pages)
 
     return data.decode("utf-8", errors="replace")

@@ -20,18 +20,43 @@ flowchart LR
     end
 ```
 
-## What's inside
+## Project structure
 
-| File | Responsibility |
-|---|---|
-| `src/rag_from_scratch/chunking.py` | Splits text by paragraphs, then sentences, with overlap between chunks |
-| `src/rag_from_scratch/ports.py` | `Protocol` interfaces for the embedder, the chat model and the vector store |
-| `src/rag_from_scratch/rag.py` | `RagService`: ingestion and question answering, independent of any provider |
-| `src/rag_from_scratch/openai_client.py` | OpenAI implementations (batched embeddings, `temperature=0` chat) |
-| `src/rag_from_scratch/opensearch_store.py` | OpenSearch k-NN index (HNSW, cosine). The `text` field is also indexed for BM25 in a later phase |
-| `src/rag_from_scratch/prompts.py` | Versioned prompts: changing a prompt is a reviewed code change |
-| `src/rag_from_scratch/api.py` | FastAPI app: `POST /documents`, `POST /ask`, `GET /health` |
-| `tests/` | Unit tests with fake implementations: no network, no cost, deterministic |
+```
+phase-01-basic-rag/
+├── src/rag_from_scratch/
+│   ├── main.py                  # FastAPI app, lifespan (wires the dependencies), routers
+│   ├── core/
+│   │   └── config.py            # settings from the environment / .env
+│   ├── api/
+│   │   ├── deps.py              # shared dependencies (get_rag)
+│   │   └── routes/
+│   │       ├── health.py        # GET  /health
+│   │       ├── documents.py     # POST /documents
+│   │       └── ask.py           # POST /ask
+│   ├── schemas/                 # API request/response models
+│   │   ├── documents.py
+│   │   └── ask.py
+│   ├── domain/
+│   │   ├── models.py            # Chunk, RetrievedChunk
+│   │   └── ports.py             # Protocols: Embedder, ChatModel, VectorStore
+│   ├── services/
+│   │   ├── rag.py               # RagService: ingestion and question answering
+│   │   ├── chunking.py          # paragraph → sentence → character splitting, with overlap
+│   │   ├── loaders.py           # text extraction (PDF, TXT, MD)
+│   │   └── prompts.py           # versioned prompts
+│   └── infrastructure/
+│       ├── openai_client.py     # OpenAI embeddings and chat
+│       └── opensearch_store.py  # OpenSearch k-NN index (HNSW, cosine)
+├── tests/
+│   ├── fakes.py                 # in-memory fakes for the Protocols
+│   └── unit/
+├── docs/                        # diagram and LinkedIn post
+├── docker-compose.yml           # OpenSearch
+└── pyproject.toml
+```
+
+The dependencies point inwards: `api` → `services` → `domain`. The `infrastructure` classes implement the `domain` Protocols and are only connected to the services in `main.py`.
 
 ## Design decisions
 
@@ -47,7 +72,7 @@ flowchart LR
 cp .env.example .env          # add your OPENAI_API_KEY
 docker compose up -d          # OpenSearch on localhost:9200
 pip install -e ".[dev]"
-uvicorn rag_from_scratch.api:app --reload --app-dir src
+uvicorn rag_from_scratch.main:app --reload --app-dir src
 ```
 
 ```bash

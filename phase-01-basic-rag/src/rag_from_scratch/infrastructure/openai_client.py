@@ -1,4 +1,4 @@
-"""Implementações dos Protocols Embedder e ChatModel com a OpenAI."""
+"""OpenAI implementations of the Embedder and ChatModel protocols."""
 
 from openai import AsyncOpenAI
 
@@ -11,7 +11,7 @@ class OpenAIEmbedder:
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
         vectors: list[list[float]] = []
-        # a API aceita listas, mas mandamos em lotes para não exceder limites
+        # the API accepts lists, but we send batches to stay within its limits
         for i in range(0, len(texts), self.batch_size):
             batch = texts[i : i + self.batch_size]
             resp = await self.client.embeddings.create(model=self.model, input=batch)
@@ -27,7 +27,7 @@ class OpenAIChat:
     async def complete(self, system: str, user: str) -> str:
         resp = await self.client.chat.completions.create(
             model=self.model,
-            temperature=0,  # o mais determinístico possível: ajuda a avaliação (etapa 2)
+            temperature=0,  # as deterministic as possible: makes evaluation easier (phase 2)
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

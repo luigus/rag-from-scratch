@@ -1,13 +1,13 @@
-"""VectorStore com OpenSearch (k-NN com HNSW).
+"""VectorStore implementation with OpenSearch (k-NN with HNSW).
 
-O campo `text` também fica indexado como texto: é isso que vai permitir a
-pesquisa lexical BM25 e a pesquisa híbrida na etapa 3, sem reindexar.
+The `text` field is also indexed as full text: this enables lexical BM25 search
+and hybrid search in phase 3 without reindexing.
 """
 
 from opensearchpy import AsyncOpenSearch
 from opensearchpy.helpers import async_bulk
 
-from rag_from_scratch.models import Chunk, RetrievedChunk
+from rag_from_scratch.domain.models import Chunk, RetrievedChunk
 
 
 class OpenSearchStore:
@@ -53,7 +53,8 @@ class OpenSearchStore:
             }
             for c, v in zip(chunks, vectors, strict=True)
         ]
-        # refresh=True: os chunks ficam pesquisáveis logo (bom para estudo; em produção evita-se)
+        # refresh=True makes the chunks searchable right away (fine for a study
+        # project; usually avoided in production because of the indexing cost)
         await async_bulk(self.client, actions, refresh=True)
 
     async def search(self, vector: list[float], k: int) -> list[RetrievedChunk]:

@@ -4,7 +4,7 @@ services:
     container_name: rag-from-scratch-opensearch
     environment:
       - discovery.type=single-node
-      # Ambiente local de estudo: sem TLS nem autenticação
+      # Local study environment: no TLS and no authentication
       - DISABLE_SECURITY_PLUGIN=true
       - DISABLE_INSTALL_DEMO_CONFIG=true
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m

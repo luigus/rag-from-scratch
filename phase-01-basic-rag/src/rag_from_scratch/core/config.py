@@ -1,4 +1,4 @@
-"""Configuração lida do ambiente / ficheiro .env (pydantic-settings)."""
+"""Settings read from environment variables or a .env file (pydantic-settings)."""
 
 from functools import lru_cache
 
@@ -23,4 +23,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]  # valores vêm do ambiente
+    return Settings()  # type: ignore[call-arg]  # values come from the environment

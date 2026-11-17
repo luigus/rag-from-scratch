@@ -1,14 +1,14 @@
-"""Implementações falsas dos Protocols: testes rápidos, sem rede nem custo."""
+"""Fake implementations of the protocols: fast tests, no network, no cost."""
 
 import math
 import re
 import zlib
 
-from rag_from_scratch.models import Chunk, RetrievedChunk
+from rag_from_scratch.domain.models import Chunk, RetrievedChunk
 
 
 class FakeEmbedder:
-    """'Embedding' por saco de palavras: textos com palavras em comum ficam próximos."""
+    """Bag-of-words 'embedding': texts that share words end up close together."""
 
     dim = 64
 
@@ -17,7 +17,7 @@ class FakeEmbedder:
         for t in texts:
             v = [0.0] * self.dim
             for word in re.findall(r"\w+", t.lower()):
-                # crc32 em vez de hash(): hash() muda entre execuções e tornaria o teste instável
+                # crc32 instead of hash(): hash() changes between runs and would make tests flaky
                 v[zlib.crc32(word.encode()) % self.dim] += 1.0
             vectors.append(v)
         return vectors
@@ -45,7 +45,7 @@ class InMemoryStore:
 
 
 class FakeChat:
-    def __init__(self, reply: str = "resposta [1]") -> None:
+    def __init__(self, reply: str = "answer [1]") -> None:
         self.reply = reply
         self.calls: list[tuple[str, str]] = []
 
