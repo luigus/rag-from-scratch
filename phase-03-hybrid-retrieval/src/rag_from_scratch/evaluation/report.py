@@ -1,0 +1,162 @@
+"""Aggregates the case results into a report (JSON for machines, Markdown for people)."""
+
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from statistics import mean, quantiles
+
+from pydantic import BaseModel
+
+from rag_from_scratch.evaluation.runner import CaseResult
+
+
+class Summary(BaseModel):
+    cases: int
+    hit_at_k: float | None = None
+    recall_at_k: float | None = None
+    precision_at_k: float | None = None
+    mrr: float | None = None
+    faithfulness: float | None = None
+    correctness: float | None = None
+    judge_errors: int = 0
+    failed: int = 0  # cases that crashed; they are left out of every metric
+
+
+class EvalReport(BaseModel):
+    created_at: str
+    config: dict[str, str | int]  # everything needed to reproduce the run
+    overall: Summary
+    by_category: dict[str, Summary]
+    latency_p50_ms: float
+    latency_p95_ms: float
+    results: list[CaseResult]
+
+
+def _avg(values: Sequence[float]) -> float | None:
+    return round(mean(values), 3) if values else None
+
+
+def summarize(all_results: Sequence[CaseResult]) -> Summary:
+    results = [r for r in all_results if r.error is None]
+    scored = [r.retrieval for r in results if r.retrieval]
+    verdicts = [r.verdict for r in results if r.verdict]
+    return Summary(
+        cases=len(all_results),
+        failed=len(all_results) - len(results),
+        hit_at_k=_avg([s.hit for s in scored]),
+        recall_at_k=_avg([s.recall for s in scored]),
+        precision_at_k=_avg([s.precision for s in scored]),
+        mrr=_avg([s.reciprocal_rank for s in scored]),
+        faithfulness=_avg([float(v.faithful) for v in verdicts]),
+        correctness=_avg([float(v.correct) for v in verdicts]),
+        judge_errors=sum(v.error for v in verdicts),
+    )
+
+
+def build_report(results: list[CaseResult], config: dict[str, str | int]) -> EvalReport:
+    categories = sorted({r.category for r in results})
+    latencies = [r.latency_ms for r in results if r.error is None] or [0.0]
+    p50, p95 = (
+        (quantiles(latencies, n=100)[49], quantiles(latencies, n=100)[94])
+        if len(latencies) > 1
+        else (latencies[0], latencies[0])
+    )
+    return EvalReport(
+        created_at=datetime.now(UTC).isoformat(timespec="seconds"),
+        config=config,
+        overall=summarize(results),
+        by_category={c: summarize([r for r in results if r.category == c]) for c in categories},
+        latency_p50_ms=round(p50, 1),
+        latency_p95_ms=round(p95, 1),
+        results=results,
+    )
+
+
+def _fmt(value: float | None) -> str:
+    return "–" if value is None else f"{value:.2f}"
+
+
+def to_markdown(report: EvalReport) -> str:
+    k = report.config.get("top_k", "k")
+    header = (
+        f"| Group | Cases | Hit@{k} | Recall@{k} | Precision@{k} | MRR | Faithful | Correct |\n"
+        "|---|---|---|---|---|---|---|---|"
+    )
+
+    def row(name: str, s: Summary) -> str:
+        values = [s.hit_at_k, s.recall_at_k, s.precision_at_k, s.mrr, s.faithfulness, s.correctness]
+        return f"| {name} | {s.cases} | " + " | ".join(_fmt(v) for v in values) + " |"
+
+    rows = [row("**overall**", report.overall)]
+    rows += [row(name, s) for name, s in report.by_category.items()]
+
+    failures = [
+        f"- `{r.id}` ({r.category}) {r.question} → {r.verdict.reason}"
+        for r in report.results
+        if r.verdict and not r.verdict.correct
+    ]
+    config = ", ".join(f"{key}={value}" for key, value in report.config.items())
+    judged = any(r.verdict for r in report.results)
+    # without the judge nobody checked the answers, so "no incorrect answers" would be false
+    no_failures = "None 🎉" if judged else "Not graded: the judge was disabled (--no-judge)."
+    crashed = [f"- `{r.id}` {r.question} → {r.error}" for r in report.results if r.error]
+    warning = (
+        [
+            f"⚠️ {len(crashed)} case(s) failed and are not in the metrics. Run again to include them.",
+            "",
+        ]
+        if crashed
+        else []
+    )
+
+    return "\n".join(
+        [
+            f"# Evaluation report — {report.created_at}",
+            "",
+            f"Config: {config}",
+            "",
+            *warning,
+            header,
+            *rows,
+            "",
+            f"Latency (retrieval + generation): p50 {report.latency_p50_ms:.0f} ms, "
+            f"p95 {report.latency_p95_ms:.0f} ms. Judge errors: {report.overall.judge_errors}.",
+            "",
+            "## Incorrect answers",
+            "",
+            *(failures or [no_failures]),
+            "",
+            *(["## Failed cases", "", *crashed, ""] if crashed else []),
+        ]
+    )
+
+
+COMPARED_CATEGORIES = ("exact-code", "paraphrase", "factual", "multi-hop")
+
+
+def comparison_markdown(reports: dict[str, EvalReport]) -> str:
+    """One row per retrieval variant, evaluated on the same questions and index."""
+    if not reports:
+        return ""
+    first = next(iter(reports.values()))
+    k = first.config.get("top_k", "k")
+    cat_headers = " | ".join(f"MRR {c}" for c in COMPARED_CATEGORIES)
+    header = (
+        f"| Variant | Hit@{k} | Recall@{k} | MRR | {cat_headers} | Faithful | Correct | p50 ms |\n"
+        "|---|" + "---|" * (6 + len(COMPARED_CATEGORIES))
+    )
+    rows = []
+    for name, report in reports.items():
+        o = report.overall
+        cats = [
+            _fmt(report.by_category[c].mrr) if c in report.by_category else "–"
+            for c in COMPARED_CATEGORIES
+        ]
+        values = [_fmt(o.hit_at_k), _fmt(o.recall_at_k), _fmt(o.mrr), *cats]
+        values += [_fmt(o.faithfulness), _fmt(o.correctness), f"{report.latency_p50_ms:.0f}"]
+        rows.append(f"| {name} | " + " | ".join(values) + " |")
+
+    failed = sum(r.overall.failed for r in reports.values())
+    note = ["", f"⚠️ {failed} case(s) failed across the variants; see each report."] if failed else []
+    return "\n".join(
+        [f"# Retrieval comparison — {first.created_at}", "", header, *rows, *note, ""]
+    )
