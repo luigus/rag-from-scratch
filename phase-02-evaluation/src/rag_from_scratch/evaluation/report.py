@@ -95,6 +95,9 @@ def to_markdown(report: EvalReport) -> str:
         if r.verdict and not r.verdict.correct
     ]
     config = ", ".join(f"{key}={value}" for key, value in report.config.items())
+    judged = any(r.verdict for r in report.results)
+    # without the judge nobody checked the answers, so "no incorrect answers" would be false
+    no_failures = "None 🎉" if judged else "Not graded: the judge was disabled (--no-judge)."
     crashed = [f"- `{r.id}` {r.question} → {r.error}" for r in report.results if r.error]
     warning = (
         [
@@ -120,7 +123,7 @@ def to_markdown(report: EvalReport) -> str:
             "",
             "## Incorrect answers",
             "",
-            *(failures or ["None 🎉"]),
+            *(failures or [no_failures]),
             "",
             *(["## Failed cases", "", *crashed, ""] if crashed else []),
         ]
