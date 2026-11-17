@@ -68,6 +68,29 @@ Relevance is defined by evidence text instead of chunk ids, because chunk ids ch
 
 The judge is an LLM too, so it can be wrong. Its reason is saved for every case, and the report lists the incorrect answers so a human can review them.
 
+## Providers: Gemini, OpenAI or a local Ollama
+
+The RAG and the judge can use different providers:
+
+| Setting | Used by | Options |
+|---|---|---|
+| `LLM_PROVIDER` | the RAG (embeddings and answers) | `gemini`, `openai`, `ollama` |
+| `JUDGE_PROVIDER` | the evaluation judge (empty = same as the RAG) | `gemini`, `openai`, `ollama` |
+
+The judge doubles the number of API calls, and on a free API tier that quickly ends in `429 RESOURCE_EXHAUSTED`. Running the judge locally with [Ollama](https://ollama.com) removes the limit: Gemini answers, a local model grades. Ollama exposes an OpenAI-compatible API, so it reuses the OpenAI classes with a different address; no extra client code was needed.
+
+```bash
+# install Ollama from https://ollama.com, then:
+ollama pull qwen3.5:9b              # judge (~7 GB; use qwen3.5:4b on 8 GB of RAM)
+ollama pull qwen3-embedding:0.6b    # only if the RAG also runs locally
+```
+
+`.env.example` has three ready-made setups: Gemini + local judge (recommended on a free key), everything local, and OpenAI.
+
+A small local judge is less reliable than a large hosted one. Its reasons are saved in the report: read a sample of them before trusting the numbers. When comparing two runs, always use the same judge, otherwise the difference may come from the judge and not from your change.
+
+If a daily quota is used up (`PerDay` in the error), the run stops retrying that call immediately instead of waiting: retrying in a few seconds can't help.
+
 ## Run it
 
 Requires [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`). It installs the right Python version and the dependencies, with versions locked in `uv.lock`.

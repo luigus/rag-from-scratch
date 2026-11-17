@@ -34,6 +34,9 @@ def _status_code(error: Exception) -> int | None:
 
 
 def is_transient(error: Exception) -> bool:
+    if "PerDay" in str(error):
+        # a daily quota is used up: retrying in a few seconds can't work, so fail fast
+        return False
     if _status_code(error) in RETRYABLE_STATUS:
         return True
     # ConnectionResetError, aiohttp.ClientOSError and TimeoutError are all OSErrors

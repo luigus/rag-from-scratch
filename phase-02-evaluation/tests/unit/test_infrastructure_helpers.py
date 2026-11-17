@@ -87,3 +87,22 @@ def test_a_hanging_call_times_out_and_is_retried():
 
     assert asyncio.run(retry.with_retry(hangs_first_time, timeout=0.05)) == "ok"
     assert calls["n"] == 2
+
+
+class DailyQuotaError(Exception):
+    code = 429
+
+    def __str__(self) -> str:
+        return "429 RESOURCE_EXHAUSTED quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+
+
+def test_daily_quota_fails_fast():
+    calls = {"n": 0}
+
+    async def quota_gone() -> str:
+        calls["n"] += 1
+        raise DailyQuotaError()
+
+    with pytest.raises(DailyQuotaError):
+        asyncio.run(retry.with_retry(quota_gone))
+    assert calls["n"] == 1

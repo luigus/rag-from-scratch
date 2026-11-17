@@ -55,6 +55,8 @@ def build_judge_prompt(case: EvalCase, answer: str, retrieved: list[RetrievedChu
 
 def parse_verdict(raw: str) -> JudgeVerdict:
     """Extract the JSON object even if the model wraps it in text or code fences."""
+    # local reasoning models may write their thinking first, inside <think> tags
+    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL)
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     try:
         if not match:

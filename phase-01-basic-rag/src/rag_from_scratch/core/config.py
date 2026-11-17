@@ -6,16 +6,20 @@ from typing import Literal, Self
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+ProviderName = Literal["gemini", "openai", "ollama"]
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # which LLM provider to use; only the key of that provider is required
-    llm_provider: Literal["gemini", "openai"] = "gemini"
+    # provider for embeddings and answers
+    llm_provider: ProviderName = "gemini"
+
     gemini_api_key: str | None = None
     openai_api_key: str | None = None
+    ollama_url: str = "http://localhost:11434"
 
-    # defaults are for Gemini; .env.example shows the OpenAI values
+    # defaults are for Gemini; .env.example shows the values for the other providers
     chat_model: str = "gemini-3.5-flash-lite"
     embedding_model: str = "gemini-embedding-001"
     embedding_dim: int = 1536
@@ -29,8 +33,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def check_api_key(self) -> Self:
-        key = self.gemini_api_key if self.llm_provider == "gemini" else self.openai_api_key
-        if not key:
+        keys = {"gemini": self.gemini_api_key, "openai": self.openai_api_key}
+        if self.llm_provider in keys and not keys[self.llm_provider]:
             raise ValueError(f"{self.llm_provider.upper()}_API_KEY is required")
         return self
 

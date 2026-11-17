@@ -17,7 +17,7 @@ from rag_from_scratch.services.rag import RagService
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Create the clients once at startup and close them at shutdown."""
     s = get_settings()
-    provider = build_provider(s)  # Gemini or OpenAI, depending on LLM_PROVIDER
+    provider = build_provider(s.llm_provider, s)  # Gemini, OpenAI or Ollama
     os_client = AsyncOpenSearch(hosts=[s.opensearch_url])
     store = OpenSearchStore(os_client, s.index_name, s.embedding_dim)
     await store.ensure_index()

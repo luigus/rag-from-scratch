@@ -61,7 +61,7 @@ async def main() -> None:
         print(f"Ingested {len(files)} documents into '{args.index}'")
 
         judge = (
-            None if args.no_judge else LLMJudge(container.provider.make_chat(settings.judge_model))
+            None if args.no_judge else LLMJudge(container.judge_chat())
         )
         cases = load_dataset(args.dataset)
         print(f"Running {len(cases)} questions ({args.concurrency} at a time)...")
@@ -80,6 +80,9 @@ async def main() -> None:
         results,
         config={
             "provider": settings.llm_provider,
+            "judge_provider": (
+                "disabled" if args.no_judge else settings.effective_judge_provider
+            ),
             "chat_model": settings.chat_model,
             "embedding_model": settings.embedding_model,
             "judge_model": "disabled" if args.no_judge else settings.judge_model,

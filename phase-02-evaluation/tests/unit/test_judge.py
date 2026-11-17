@@ -42,3 +42,9 @@ def test_judge_calls_the_model():
     verdict = asyncio.run(LLMJudge(chat).evaluate(CASE, "200 km/h", []))
     assert verdict.correct
     assert len(chat.calls) == 1
+
+
+def test_thinking_text_before_the_json_is_ignored():
+    raw = '<think>The answer says {maybe} 200...</think>\n{"faithful": true, "correct": true, "reason": "ok"}'
+    v = parse_verdict(raw)
+    assert v.correct and not v.error

@@ -66,7 +66,7 @@ The dependencies point inwards: `api` → `services` → `domain`. The `infrastr
 ## Design decisions
 
 - **Plain Python instead of a framework.** Every step of the pipeline is visible and testable.
-- **Dependencies behind interfaces.** `RagService` only knows `Embedder`, `ChatModel` and `VectorStore`. Tests use in-memory fakes; Gemini and OpenAI are both supported, chosen with `LLM_PROVIDER`; adding Bedrock or a local model is a new class, not a rewrite.
+- **Dependencies behind interfaces.** `RagService` only knows `Embedder`, `ChatModel` and `VectorStore`. Tests use in-memory fakes; Gemini, OpenAI and a local Ollama are supported, chosen with `LLM_PROVIDER`; adding Bedrock or a local model is a new class, not a rewrite.
 - **No context, no LLM call.** If retrieval returns nothing, the service answers "not found" instead of letting the model guess.
 - **Separate query and document embeddings.** Gemini embeds documents with `RETRIEVAL_DOCUMENT` and questions with `RETRIEVAL_QUERY`, which improves retrieval. That's why the `Embedder` protocol has `embed_documents` and `embed_query`.
 - **Async end to end.** FastAPI, the Gemini/OpenAI clients and the OpenSearch client are all async.
