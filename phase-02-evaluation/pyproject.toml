@@ -1,0 +1,29 @@
+[project]
+name = "rag-from-scratch"
+version = "0.2.0"
+description = "A RAG system built from scratch, one phase at a time (evaluation, hybrid retrieval, GraphRAG, MCP)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "openai>=1.40",
+    "opensearch-py[async]>=2.6",
+    "pypdf>=4.3",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rag_from_scratch"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
