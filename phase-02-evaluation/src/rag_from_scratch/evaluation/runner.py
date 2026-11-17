@@ -2,6 +2,7 @@
 
 import asyncio
 import time
+from collections.abc import Callable
 
 from pydantic import BaseModel
 
@@ -56,13 +57,23 @@ async def run_evaluation(
     *,
     k: int,
     concurrency: int = 5,
+    on_progress: Callable[[CaseResult, int, int], None] | None = None,
 ) -> list[CaseResult]:
-    """Evaluate the cases in parallel, with a limit to respect the API rate limits."""
+    """Evaluate the cases in parallel, with a limit to respect the API rate limits.
+
+    `on_progress(result, done, total)` is called as each case finishes.
+    """
     semaphore = asyncio.Semaphore(concurrency)
+    done = 0
 
     async def limited(case: EvalCase) -> CaseResult:
+        nonlocal done
         async with semaphore:
-            return await evaluate_case(rag, judge, case, k)
+            result = await evaluate_case(rag, judge, case, k)
+        done += 1
+        if on_progress:
+            on_progress(result, done, len(cases))
+        return result
 
     # gather keeps the input order, so the report follows the dataset order
     return list(await asyncio.gather(*(limited(c) for c in cases)))

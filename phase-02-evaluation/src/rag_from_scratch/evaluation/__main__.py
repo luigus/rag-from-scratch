@@ -9,6 +9,7 @@ golden dataset, grade the answers and save a JSON and a Markdown report.
 
 import argparse
 import asyncio
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -16,9 +17,15 @@ from rag_from_scratch.core.config import get_settings
 from rag_from_scratch.evaluation.dataset import load_dataset
 from rag_from_scratch.evaluation.judge import JUDGE_PROMPT_VERSION, LLMJudge
 from rag_from_scratch.evaluation.report import build_report, to_markdown
-from rag_from_scratch.evaluation.runner import run_evaluation
+from rag_from_scratch.evaluation.runner import CaseResult, run_evaluation
 from rag_from_scratch.infrastructure.factory import build_container
 from rag_from_scratch.services.prompts import PROMPT_VERSION
+
+
+def print_progress(result: CaseResult, done: int, total: int) -> None:
+    found = "–" if result.retrieval is None else ("found" if result.retrieval.hit else "missed")
+    verdict = "" if result.verdict is None else ("correct" if result.verdict.correct else "WRONG")
+    print(f"[{done:>2}/{total}] {result.id} {result.latency_ms / 1000:5.1f}s  {found:6} {verdict}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,6 +44,7 @@ def parse_args() -> argparse.Namespace:
 
 async def main() -> None:
     args = parse_args()
+    logging.basicConfig(level=logging.WARNING, format="  ! %(message)s")
     settings = get_settings()
     k = args.k or settings.top_k
     container = build_container(settings, index_name=args.index)
@@ -53,8 +61,14 @@ async def main() -> None:
             None if args.no_judge else LLMJudge(container.provider.make_chat(settings.judge_model))
         )
         cases = load_dataset(args.dataset)
+        print(f"Running {len(cases)} questions ({args.concurrency} at a time)...")
         results = await run_evaluation(
-            container.rag, judge, cases, k=k, concurrency=args.concurrency
+            container.rag,
+            judge,
+            cases,
+            k=k,
+            concurrency=args.concurrency,
+            on_progress=print_progress,
         )
     finally:
         await container.close()
