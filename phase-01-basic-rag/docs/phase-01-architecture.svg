@@ -59,8 +59,8 @@
 <circle cx="55" cy="936" r="5" fill="#5B6670"/>
 <text x="72" y="943" font-size="21" fill="#1F2933">Providers behind interfaces → tested with fakes</text>
 <circle cx="55" cy="974" r="5" fill="#5B6670"/>
-<text x="72" y="981" font-size="21" fill="#1F2933">Async end to end: FastAPI, OpenAI, OpenSearch</text>
+<text x="72" y="981" font-size="21" fill="#1F2933">Async end to end: FastAPI, Gemini, OpenSearch</text>
 <line x1="45" y1="1085" x2="1155" y2="1085" stroke="#D9D6CE" stroke-width="2"/>
-<text x="45" y="1135" font-size="20" fill="#5B6670">Python · FastAPI · Pydantic · OpenAI · OpenSearch · Docker</text>
+<text x="45" y="1135" font-size="20" fill="#5B6670">Python · FastAPI · Pydantic · Gemini · OpenSearch · Docker</text>
 <text x="1155" y="1135" font-size="20" fill="#5B6670" text-anchor="end">Next: measuring answer quality →</text>
 </svg>

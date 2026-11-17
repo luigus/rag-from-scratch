@@ -1,8 +1,9 @@
 """Interfaces (Protocols) for the external dependencies.
 
-RagService depends on these interfaces, not on OpenAI or OpenSearch directly:
+RagService depends on these interfaces, not on Gemini, OpenAI or OpenSearch
+directly:
 - tests use fake implementations that are fast and deterministic;
-- switching providers (Azure OpenAI, Bedrock, Ollama) only needs a new class.
+- switching providers only needs a new class (see infrastructure/).
 """
 
 from typing import Protocol
@@ -11,7 +12,12 @@ from rag_from_scratch.domain.models import Chunk, RetrievedChunk
 
 
 class Embedder(Protocol):
-    async def embed(self, texts: list[str]) -> list[list[float]]: ...
+    """Documents and queries are embedded separately: some models (like Gemini)
+    produce better retrieval when they know which side of the search a text is on."""
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
+
+    async def embed_query(self, text: str) -> list[float]: ...
 
 
 class ChatModel(Protocol):

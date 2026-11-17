@@ -12,7 +12,7 @@ class FakeEmbedder:
 
     dim = 64
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
         vectors = []
         for t in texts:
             v = [0.0] * self.dim
@@ -21,6 +21,10 @@ class FakeEmbedder:
                 v[zlib.crc32(word.encode()) % self.dim] += 1.0
             vectors.append(v)
         return vectors
+
+    async def embed_query(self, text: str) -> list[float]:
+        [vector] = await self.embed_documents([text])
+        return vector
 
 
 def _cosine(a: list[float], b: list[float]) -> float:

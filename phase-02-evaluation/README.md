@@ -24,6 +24,7 @@ flowchart LR
 | `data/eval/golden.jsonl` | 25 questions with a reference answer and the evidence needed |
 | `RagService.retrieve` + `generate` | `ask` is split in two, so retrieval and generation are scored separately |
 | `infrastructure/factory.py` | the API and the evaluation build exactly the same pipeline |
+| `JUDGE_MODEL` setting | the judge can be a stronger model than the one that answers (default: `gemini-3.8-flash` judging `gemini-3.5-flash-lite`) |
 | Smaller chunks (500/80) and top-3 | with 1000-character chunks the whole corpus was 8 chunks, and top-5 retrieved most of it: the retrieval metrics would always look perfect |
 
 ## The golden dataset
@@ -70,7 +71,7 @@ The judge is an LLM too, so it can be wrong. Its reason is saved for every case,
 ## Run it
 
 ```bash
-cp .env.example .env          # add your OPENAI_API_KEY
+cp .env.example .env          # add your GEMINI_API_KEY (or set LLM_PROVIDER=openai)
 docker compose up -d
 pip install -e ".[dev]"
 
@@ -78,6 +79,8 @@ python -m rag_from_scratch.evaluation              # full evaluation
 python -m rag_from_scratch.evaluation --no-judge   # retrieval only, almost free
 python -m rag_from_scratch.evaluation --k 5        # try another top-k
 ```
+
+The CLI runs 2 questions at a time by default and retries rate-limit errors (429) with exponential backoff, so it also works on free API tiers. On a paid tier, `--concurrency 8` is much faster.
 
 Each run uses a separate `rag-eval` index, recreated from scratch, and saves `eval-results/<timestamp>.json` (every case) and `.md` (summary table). The configuration (models, chunking, top-k, prompt versions) is stored in the report, so any result can be reproduced.
 

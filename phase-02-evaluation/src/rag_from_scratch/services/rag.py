@@ -42,12 +42,12 @@ class RagService:
             for i, t in enumerate(pieces)
         ]
         if chunks:
-            vectors = await self.embedder.embed([c.text for c in chunks])
+            vectors = await self.embedder.embed_documents([c.text for c in chunks])
             await self.store.add(chunks, vectors)
         return IngestResponse(doc_id=doc_id, source=source, chunks_indexed=len(chunks))
 
     async def retrieve(self, question: str, top_k: int | None = None) -> list[RetrievedChunk]:
-        [query_vector] = await self.embedder.embed([question])
+        query_vector = await self.embedder.embed_query(question)
         return await self.store.search(query_vector, k=top_k or self.top_k)
 
     async def generate(self, question: str, retrieved: list[RetrievedChunk]) -> AskResponse:

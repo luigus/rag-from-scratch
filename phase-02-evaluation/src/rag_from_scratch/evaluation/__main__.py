@@ -18,7 +18,6 @@ from rag_from_scratch.evaluation.judge import JUDGE_PROMPT_VERSION, LLMJudge
 from rag_from_scratch.evaluation.report import build_report, to_markdown
 from rag_from_scratch.evaluation.runner import run_evaluation
 from rag_from_scratch.infrastructure.factory import build_container
-from rag_from_scratch.infrastructure.openai_client import OpenAIChat
 from rag_from_scratch.services.prompts import PROMPT_VERSION
 
 
@@ -28,7 +27,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--corpus", type=Path, default=Path("data/corpus"))
     p.add_argument("--k", type=int, default=None, help="top-k chunks (default: TOP_K)")
     p.add_argument("--index", default="rag-eval", help="index used only by the evaluation")
-    p.add_argument("--concurrency", type=int, default=5)
+    p.add_argument(
+        "--concurrency", type=int, default=2, help="parallel questions (keep low on free tiers)"
+    )
     p.add_argument("--no-judge", action="store_true", help="only retrieval metrics (cheaper)")
     p.add_argument("--out", type=Path, default=Path("eval-results"))
     return p.parse_args()
@@ -48,7 +49,9 @@ async def main() -> None:
             await container.rag.ingest(f.name, f.read_text(encoding="utf-8"))
         print(f"Ingested {len(files)} documents into '{args.index}'")
 
-        judge = None if args.no_judge else LLMJudge(OpenAIChat(container.openai, settings.judge_model))
+        judge = (
+            None if args.no_judge else LLMJudge(container.provider.make_chat(settings.judge_model))
+        )
         cases = load_dataset(args.dataset)
         results = await run_evaluation(
             container.rag, judge, cases, k=k, concurrency=args.concurrency
@@ -59,6 +62,7 @@ async def main() -> None:
     report = build_report(
         results,
         config={
+            "provider": settings.llm_provider,
             "chat_model": settings.chat_model,
             "embedding_model": settings.embedding_model,
             "judge_model": "disabled" if args.no_judge else settings.judge_model,

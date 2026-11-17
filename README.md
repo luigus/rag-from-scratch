@@ -12,6 +12,6 @@ A RAG (Retrieval-Augmented Generation) service built in phases. Each folder is a
 | 6 | `phase-06-graphrag` | Entities and relations in a graph, used during retrieval |
 | 7 | `phase-07-mcp` | The search exposed as a Model Context Protocol server |
 
-Stack: Python 3.11+, FastAPI, Pydantic, OpenAI, OpenSearch, Docker.
+Stack: Python 3.11+, FastAPI, Pydantic, Gemini (or OpenAI), OpenSearch, Docker.
 
 To see what a phase changed: `diff -ru phase-01-basic-rag phase-02-evaluation`

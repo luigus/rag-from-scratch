@@ -7,7 +7,7 @@ flowchart LR
     subgraph Ingestion["Ingestion — POST /documents"]
         A[PDF / TXT / MD] --> B[Extract text]
         B --> C[Chunking<br/>size + overlap]
-        C --> D[Embeddings<br/>text-embedding-3-small]
+        C --> D[Embeddings<br/>gemini-embedding-001]
         D --> E[(OpenSearch<br/>k-NN index)]
     end
     subgraph Query["Query — POST /ask"]
@@ -15,7 +15,7 @@ flowchart LR
         QE --> S[k-NN search<br/>top-k chunks]
         E -.-> S
         S --> P[Prompt =<br/>rules + context + question]
-        P --> L[LLM<br/>gpt-4o-mini]
+        P --> L[LLM<br/>Gemini Flash]
         L --> R[Answer + sources]
     end
 ```
@@ -48,7 +48,10 @@ phase-01-basic-rag/
 │   │   ├── loaders.py           # text extraction (PDF, TXT, MD)
 │   │   └── prompts.py           # versioned prompts
 │   └── infrastructure/
+│       ├── providers.py         # picks Gemini or OpenAI from LLM_PROVIDER
+│       ├── gemini_client.py     # Gemini embeddings and chat
 │       ├── openai_client.py     # OpenAI embeddings and chat
+│       ├── retry.py             # backoff for rate limits (429) and server errors
 │       └── opensearch_store.py  # OpenSearch k-NN index (HNSW, cosine)
 ├── tests/
 │   ├── fakes.py                 # in-memory fakes for the Protocols
@@ -63,15 +66,16 @@ The dependencies point inwards: `api` → `services` → `domain`. The `infrastr
 ## Design decisions
 
 - **Plain Python instead of a framework.** Every step of the pipeline is visible and testable.
-- **Dependencies behind interfaces.** `RagService` only knows `Embedder`, `ChatModel` and `VectorStore`. Tests use in-memory fakes; switching to Azure OpenAI, Bedrock or a local model is a new class, not a rewrite.
+- **Dependencies behind interfaces.** `RagService` only knows `Embedder`, `ChatModel` and `VectorStore`. Tests use in-memory fakes; Gemini and OpenAI are both supported, chosen with `LLM_PROVIDER`; adding Bedrock or a local model is a new class, not a rewrite.
 - **No context, no LLM call.** If retrieval returns nothing, the service answers "not found" instead of letting the model guess.
-- **Async end to end.** FastAPI, the OpenAI client and the OpenSearch client are all async.
+- **Separate query and document embeddings.** Gemini embeds documents with `RETRIEVAL_DOCUMENT` and questions with `RETRIEVAL_QUERY`, which improves retrieval. That's why the `Embedder` protocol has `embed_documents` and `embed_query`.
+- **Async end to end.** FastAPI, the Gemini/OpenAI clients and the OpenSearch client are all async.
 - **Pydantic models as contracts** between layers and in the API.
 
 ## Run it
 
 ```bash
-cp .env.example .env          # add your OPENAI_API_KEY
+cp .env.example .env          # add your GEMINI_API_KEY (or set LLM_PROVIDER=openai)
 docker compose up -d          # OpenSearch on localhost:9200
 pip install -e ".[dev]"
 uvicorn rag_from_scratch.main:app --reload --app-dir src

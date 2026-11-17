@@ -12,7 +12,7 @@ A few things I did on purpose:
 
 No LangChain this time. Just Python, FastAPI and Pydantic. More code to write, but I can see and test every step.
 
-The core logic doesn't know it's talking to OpenAI or OpenSearch. In the tests I swap them for fake in-memory versions, so the tests run in milliseconds, cost nothing and give the same result every time.
+The core logic doesn't know it's talking to Gemini or OpenSearch. In the tests I swap them for fake in-memory versions, so the tests run in milliseconds, cost nothing and give the same result every time.
 
 If the search finds nothing relevant, the LLM isn't even called. Better to say "I don't know" than to let the model make something up.
 
