@@ -20,6 +20,8 @@ flowchart LR
     end
 ```
 
+New to RAG? [This diagram](docs/how-rag-works-explained.png) follows one question through every step.
+
 ## Project structure
 
 ```

@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1200" height="1500" fill="#F6F5F1"/>
+<defs>
+<marker id="ak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1F2933"/></marker>
+<marker id="at" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0E7C6B"/></marker>
+</defs>
+<text x="45" y="85" font-size="50" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">What happens inside a RAG?</text>
+<text x="45" y="130" font-size="26" fill="#5B6670" font-weight="normal" text-anchor="start" font-style="normal">One question, followed step by step</text>
+<circle cx="67" cy="197" r="22" fill="#1F2933"/>
+<text x="67" y="205" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">1</text>
+<text x="105" y="205" font-size="28" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Cut the documents into small pieces</text>
+<rect x="45" y="240" width="180" height="200" rx="8" fill="#FFFFFF" stroke="#1F2933" stroke-width="3"/>
+<text x="135" y="280" font-size="19" fill="#1F2933" font-weight="bold" text-anchor="middle" font-style="normal">Train manual</text>
+<rect x="65" y="300" width="140" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="318" width="115" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="336" width="90" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="354" width="140" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="372" width="115" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="390" width="90" height="7" rx="3" fill="#D9D6CE"/>
+<rect x="65" y="408" width="140" height="7" rx="3" fill="#D9D6CE"/>
+<text x="135" y="470" font-size="18" fill="#5B6670" font-weight="normal" text-anchor="middle" font-style="normal">80 pages</text>
+<path d="M240,340 L290,340" stroke="#1F2933" stroke-width="3.5" fill="none" marker-end="url(#ak)"/>
+<rect x="305" y="280" width="270" height="100" rx="10" fill="#FFFFFF" stroke="#2457C5" stroke-width="3"/>
+<rect x="305" y="280" width="10" height="100" rx="4" fill="#2457C5"/>
+<text x="329" y="314" font-size="18" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The Velaro reaches</text>
+<text x="329" y="340" font-size="18" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">a top speed of 320 km/h.</text>
+<rect x="595" y="280" width="270" height="100" rx="10" fill="#FFFFFF" stroke="#C2610C" stroke-width="3"/>
+<rect x="595" y="280" width="10" height="100" rx="4" fill="#C2610C"/>
+<text x="619" y="314" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">Bogies are serviced</text>
+<text x="619" y="340" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">every 1.2 million km.</text>
+<rect x="885" y="280" width="270" height="100" rx="10" fill="#FFFFFF" stroke="#7A3DB8" stroke-width="3"/>
+<rect x="885" y="280" width="10" height="100" rx="4" fill="#7A3DB8"/>
+<text x="909" y="314" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The line uses ETCS</text>
+<text x="909" y="340" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">level 2 signalling.</text>
+<text x="305" y="425" font-size="20" fill="#5B6670" font-weight="normal" text-anchor="start" font-style="normal">Each piece is small enough to fit in the prompt and focused on one idea.</text>
+<circle cx="67" cy="537" r="22" fill="#1F2933"/>
+<text x="67" y="545" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">2</text>
+<text x="105" y="545" font-size="28" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Turn each piece into numbers that describe its meaning</text>
+<rect x="45" y="585" width="270" height="100" rx="10" fill="#FFFFFF" stroke="#2457C5" stroke-width="3"/>
+<rect x="45" y="585" width="10" height="100" rx="4" fill="#2457C5"/>
+<text x="69" y="619" font-size="18" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The Velaro reaches</text>
+<text x="69" y="645" font-size="18" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">a top speed of 320 km/h.</text>
+<path d="M330,635 L425,635" stroke="#1F2933" stroke-width="3.5" fill="none" marker-end="url(#ak)"/>
+<text x="377" y="612" font-size="17" fill="#5B6670" font-weight="normal" text-anchor="middle" font-style="normal">embedding</text>
+<text x="377" y="668" font-size="17" fill="#5B6670" font-weight="normal" text-anchor="middle" font-style="normal">model</text>
+<rect x="440" y="595" width="360" height="80" rx="10" fill="#1F2933"/>
+<text x="620" y="632" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">[ 0.12, -0.83, 0.45, 0.07, … ]</text>
+<text x="620" y="660" font-size="17" fill="#C9CED4" font-weight="normal" text-anchor="middle" font-style="normal">1,536 numbers</text>
+<path d="M815,635 L875,635" stroke="#1F2933" stroke-width="3.5" fill="none" marker-end="url(#ak)"/>
+<circle cx="910" cy="635" r="12" fill="#2457C5"/>
+<text x="935" y="628" font-size="20" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">one point on a</text>
+<text x="935" y="654" font-size="20" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">map of meaning</text>
+<text x="45" y="725" font-size="20" fill="#5B6670" font-weight="normal" text-anchor="start" font-style="normal">Pieces about the same subject get similar numbers, so they land close together on the map.</text>
+<circle cx="67" cy="797" r="22" fill="#1F2933"/>
+<text x="67" y="805" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">3</text>
+<text x="105" y="805" font-size="28" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Put the question on the same map and take the closest pieces</text>
+<rect x="45" y="840" width="620" height="300" rx="12" fill="#FFFFFF" stroke="#D9D6CE" stroke-width="2"/>
+<line x1="107" y1="848" x2="107" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="169" y1="848" x2="169" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="231" y1="848" x2="231" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="293" y1="848" x2="293" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="355" y1="848" x2="355" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="417" y1="848" x2="417" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="479" y1="848" x2="479" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="541" y1="848" x2="541" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="603" y1="848" x2="603" y2="1132" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="53" y1="900" x2="657" y2="900" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="53" y1="960" x2="657" y2="960" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="53" y1="1020" x2="657" y2="1020" stroke="#EFEDE7" stroke-width="1.5"/>
+<line x1="53" y1="1080" x2="657" y2="1080" stroke="#EFEDE7" stroke-width="1.5"/>
+<circle cx="150" cy="950" r="11" fill="#2457C5"/>
+<circle cx="205" cy="935" r="11" fill="#2457C5"/>
+<circle cx="175" cy="995" r="11" fill="#2457C5"/>
+<circle cx="232" cy="985" r="11" fill="#2457C5"/>
+<text x="70" y="878" font-size="18" fill="#2457C5" font-weight="bold" text-anchor="start" font-style="normal">speed</text>
+<circle cx="395" cy="1080" r="11" fill="#C2610C"/>
+<circle cx="445" cy="1095" r="11" fill="#C2610C"/>
+<circle cx="470" cy="1060" r="11" fill="#C2610C"/>
+<circle cx="420" cy="1045" r="11" fill="#C2610C"/>
+<text x="380" y="1025" font-size="18" fill="#C2610C" font-weight="bold" text-anchor="start" font-style="normal">maintenance</text>
+<circle cx="545" cy="925" r="11" fill="#7A3DB8"/>
+<circle cx="590" cy="950" r="11" fill="#7A3DB8"/>
+<circle cx="560" cy="975" r="11" fill="#7A3DB8"/>
+<text x="530" y="885" font-size="18" fill="#7A3DB8" font-weight="bold" text-anchor="start" font-style="normal">signalling</text>
+<circle cx="192" cy="965" r="68" fill="#2457C5" fill-opacity="0.08" stroke="#1F2933" stroke-width="2.5" stroke-dasharray="8 7"/>
+<path d="M192,948 L197,960 L209,960 L199,968 L203,981 L192,973 L181,981 L185,968 L175,960 L187,960 Z" fill="#F2B705" stroke="#1F2933" stroke-width="2"/>
+<text x="651" y="1126" font-size="15" fill="#5B6670" font-weight="normal" text-anchor="end" font-style="normal">(simplified to 2D)</text>
+<rect x="700" y="845" width="455" height="70" rx="35" fill="#FFFFFF" stroke="#1F2933" stroke-width="2.5"/>
+<path d="M722,880 m-11,0 l11,-13 l3.5,9 l9.5,0 l-7.5,6 l3,10 l-8.5,-6 l-8.5,6 l3,-10 l-7.5,-6 l9.5,0 z" fill="#F2B705" stroke="#1F2933" stroke-width="1.5"/>
+<text x="745" y="889" font-size="22" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">“How fast can the train go?”</text>
+<text x="700" y="960" font-size="21" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The question becomes a point too.</text>
+<text x="700" y="990" font-size="21" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The pieces inside the circle are</text>
+<text x="700" y="1020" font-size="21" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">the closest in meaning.</text>
+<rect x="700" y="1045" width="455" height="95" rx="10" fill="#FFF7E0" stroke="#E8C766" stroke-width="2"/>
+<text x="718" y="1075" font-size="19" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">“fast” and “320 km/h” share no words.</text>
+<text x="718" y="1102" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">The match is by meaning,</text>
+<text x="718" y="1129" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">not by keywords.</text>
+<circle cx="67" cy="1192" r="22" fill="#1F2933"/>
+<text x="67" y="1200" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">4</text>
+<text x="105" y="1200" font-size="28" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Send the question with those pieces to the LLM</text>
+<rect x="45" y="1230" width="560" height="190" rx="10" fill="#FFFFFF" stroke="#1F2933" stroke-width="2.5"/>
+<text x="65" y="1262" font-size="16" fill="#5B6670" font-weight="bold" text-anchor="start" font-style="normal">PROMPT</text>
+<text x="65" y="1292" font-size="19" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Answer ONLY with the pieces below.</text>
+<text x="65" y="1318" font-size="19" fill="#1F2933" font-weight="normal" text-anchor="start" font-style="normal">If they don’t have the answer, say so.</text>
+<line x1="65" y1="1335" x2="585" y2="1335" stroke="#D9D6CE" stroke-width="2"/>
+<text x="65" y="1362" font-size="18" fill="#2457C5" font-weight="normal" text-anchor="start" font-style="normal">[1] The Velaro reaches a top speed of 320 km/h.</text>
+<text x="65" y="1398" font-size="19" fill="#1F2933" font-weight="bold" text-anchor="start" font-style="normal">Question: How fast can the train go?</text>
+<path d="M620,1325 L690,1325" stroke="#1F2933" stroke-width="3.5" fill="none" marker-end="url(#ak)"/>
+<rect x="705" y="1280" width="130" height="90" rx="12" fill="#1F2933"/>
+<text x="770" y="1335" font-size="28" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">LLM</text>
+<path d="M850,1325 L905,1325" stroke="#0E7C6B" stroke-width="3.5" fill="none" marker-end="url(#at)"/>
+<rect x="920" y="1270" width="235" height="110" rx="14" fill="#0E7C6B"/>
+<text x="1037" y="1315" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">“Up to</text>
+<text x="1037" y="1345" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle" font-style="normal">320 km/h [1]”</text>
+<text x="920" y="1405" font-size="17" fill="#5B6670" font-weight="normal" text-anchor="start" font-style="normal">answer + source</text>
+<line x1="45" y1="1445" x2="1155" y2="1445" stroke="#D9D6CE" stroke-width="2"/>
+<text x="45" y="1478" font-size="18" fill="#5B6670" font-weight="normal" text-anchor="start" font-style="normal">github.com/luigus/rag-from-scratch</text>
+<text x="1155" y="1478" font-size="18" fill="#5B6670" font-weight="normal" text-anchor="end" font-style="normal">The LLM doesn’t “remember” your manual: it reads the right pieces.</text>
+</svg>
